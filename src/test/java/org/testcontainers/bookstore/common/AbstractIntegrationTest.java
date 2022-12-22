@@ -71,16 +71,11 @@ public abstract class AbstractIntegrationTest {
     );
 
     protected static RedpandaContainer getRedpanda() {
-        return new RedpandaContainer("docker.redpanda.com/vectorized/redpanda:v22.3.9"){
-            protected void containerIsStarting(InspectContainerResponse containerInfo) {
-                super.containerIsStarting(containerInfo);
-                String command = "#!/bin/bash\n";
-                command = command + "/usr/bin/rpk redpanda start --mode dev-container --smp 2";
-                command = command + "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 ";
-                command = command + "--advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
-                this.copyFileToContainer(Transferable.of(command, 511), "/testcontainers_start.sh");
-            }
-        };
+        return new RedpandaContainer("docker.redpanda.com/vectorized/redpanda:v22.3.9")
+          .withCreateContainerCmdModifier(cmd -> {
+              cmd.getHostConfig()
+                .withCpuCount(2l);
+          });
     }
 
     @BeforeEach
