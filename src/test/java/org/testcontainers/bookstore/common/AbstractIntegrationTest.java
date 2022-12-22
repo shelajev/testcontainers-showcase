@@ -1,5 +1,6 @@
 package org.testcontainers.bookstore.common;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import io.restassured.RestAssured;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -19,6 +20,7 @@ import org.testcontainers.bookstore.notifications.NotificationService;
 import org.testcontainers.bookstore.payment.domain.CreditCard;
 import org.testcontainers.bookstore.payment.domain.CreditCardRepository;
 import org.testcontainers.containers.*;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.redpanda.RedpandaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -67,6 +69,19 @@ public abstract class AbstractIntegrationTest {
             new CreditCard(null, "Siva", "1234123412341234", "123", 10, 2030),
             new CreditCard(null, "Kevin", "1234567890123456", "123", 3, 2030)
     );
+
+    protected static RedpandaContainer getRedpanda() {
+        return new RedpandaContainer("docker.redpanda.com/vectorized/redpanda:v22.3.9"){
+            protected void containerIsStarting(InspectContainerResponse containerInfo) {
+                super.containerIsStarting(containerInfo);
+                String command = "#!/bin/bash\n";
+                command = command + "/usr/bin/rpk redpanda start --mode dev-container --smp 2";
+                command = command + "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 ";
+                command = command + "--advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
+                this.copyFileToContainer(Transferable.of(command, 511), "/testcontainers_start.sh");
+            }
+        };
+    }
 
     @BeforeEach
     void setUpBase() {
