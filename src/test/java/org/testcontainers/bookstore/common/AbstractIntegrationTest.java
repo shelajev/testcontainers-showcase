@@ -74,7 +74,7 @@ public abstract class AbstractIntegrationTest {
         return new RedpandaContainer("docker.redpanda.com/vectorized/redpanda:v22.3.9"){
             protected void containerIsStarting(InspectContainerResponse containerInfo) {
                 String command = "#!/bin/bash\n";
-                command = command + "/usr/bin/rpk redpanda start --mode dev-container --smp=2 --memory=2G";
+                command = command + "/usr/bin/rpk redpanda start --mode dev-container --smp=1 --memory=2G";
                 command = command + "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 ";
                 command = command + "--advertise-kafka-addr PLAINTEXT://127.0.0.1:29092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
                 this.copyFileToContainer(Transferable.of(command, 511), "/testcontainers_start.sh");
