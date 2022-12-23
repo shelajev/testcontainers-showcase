@@ -1,0 +1,7 @@
+<extensions>
+    <extension>
+        <groupId>com.github.shelajev</groupId>
+        <artifactId>maven-profiler</artifactId>
+        <version>main-c980368781-1</version>
+    </extension>
+</extensions>
