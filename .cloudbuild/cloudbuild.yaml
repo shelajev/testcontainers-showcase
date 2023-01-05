@@ -1,0 +1,18 @@
+steps:
+ - name: 'maven:3-amazoncorretto-19'
+   args:
+     - '-c'
+     - |
+       curl -fsSL https://app.testcontainers.cloud/bash | bash
+ 
+       cp ~/.testcontainers.properties /root/.testcontainers.properties
+ 
+       mvn test
+   dir: '${_APP_NAME}'
+   entrypoint: bash
+   secretEnv:
+     - TC_CLOUD_TOKEN
+availableSecrets:
+ secretManager:
+   - versionName: projects/<PROJECT_ID>/secrets/TC_CLOUD_TOKEN/versions/latest
+     env: TC_CLOUD_TOKEN
