@@ -1,0 +1,22 @@
+variables:
+  # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+  MAVEN_CLI_OPTS: >-
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+    --no-transfer-progress
+image: maven:3-eclipse-temurin-19
+cache:
+  paths:
+    - .m2/repository
+test:
+  stage: test
+  script:
+    - curl -fsSL https://app.testcontainers.cloud/bash | bash
+    - 'mvn $MAVEN_CLI_OPTS verify'
